@@ -1,14 +1,24 @@
 package com.dbobrov.android.weather.models;
 
-/**
- * Created with IntelliJ IDEA.
- * User: blackhawk
- * Date: 18.11.12
- * Time: 20:12
- */
-public class Forecast {
+import java.io.Serializable;
+
+public class Forecast implements Serializable {
     public String date;
     public int tempMax, tempMin;
-    public int windDir, windSpeed;
+    public int windSpeed;
+    public String windDir;
     public String iconName;
+
+    public Forecast() {
+
+    }
+
+    public Forecast(String date, int tempMax, int tempMin, int windSpeed, String iconName, String windDir) {
+        this.iconName = iconName;
+        this.tempMin = tempMin;
+        this.windSpeed = windSpeed;
+        this.windDir = windDir;
+        this.date = date;
+        this.tempMax = tempMax;
+    }
 }

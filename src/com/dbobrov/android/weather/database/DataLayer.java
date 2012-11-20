@@ -8,13 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import com.dbobrov.android.weather.models.Forecast;
 
-/**
- * Created with IntelliJ IDEA.
- * User: blackhawk
- * Date: 18.11.12
- * Time: 18:07
- */
-public class DatabaseAdapter {
+public class DataLayer {
     private static final String TAG = "WeatherDBAdapter";
     private static final String TBL_CITY = "City";
     private static final String TBL_CUR_CONDITIONS = "CurrentConditions";
@@ -24,19 +18,19 @@ public class DatabaseAdapter {
     private final DatabaseHelper dbHelper;
     private SQLiteDatabase db;
 
-    public DatabaseAdapter(Context context) {
+    public DataLayer(Context context) {
 //        this.context = context;
         dbHelper = new DatabaseHelper(context);
     }
 
-    public DatabaseAdapter open() {
+    public DataLayer open() {
         this.db = dbHelper.getWritableDatabase();
         return this;
     }
 
     public void close() {
-        dbHelper.close();
         db.close();
+        db = null;
     }
 
     public Cursor getCities() {
@@ -51,6 +45,21 @@ public class DatabaseAdapter {
         return db.query(TBL_CUR_CONDITIONS, null, "cityId=" + cityId, null, null, null, null);
     }
 
+    public Cursor getCity(long cityId) {
+        return db.query(TBL_CITY, null, "_id=" + cityId, null, null, null, null);
+    }
+
+    public long searchCity(String name, String country) {
+        Cursor cursor = db.query(TBL_CITY, new String[]{"_id"}, "name=? AND country=?", new String[]{name, country}, null, null, null);
+        if (!cursor.moveToFirst()) {
+            cursor.close();
+            return -1;
+        }
+        long id= cursor.getLong(0);
+        cursor.close();
+        return id;
+    }
+
     public long addCity(String name, String country) {
         ContentValues contentValues = new ContentValues();
         contentValues.put("name", name);
@@ -59,7 +68,7 @@ public class DatabaseAdapter {
         return id;
     }
 
-    public boolean updateCurrentConditions(long cityId, int temperature, int pressure, int windDir, int windSpeed,
+    public boolean updateCurrentConditions(long cityId, int temperature, int pressure, String windDir, int windSpeed,
                                            int humidity, String observationTime, String iconName) {
         ContentValues contentValues = new ContentValues();
 
@@ -81,7 +90,7 @@ public class DatabaseAdapter {
 
     public void updateForecast(long cityId, Forecast[] forecasts) {
         db.delete(TBL_FORECAST, "cityId=" + cityId, null);
-        for (Forecast forecast: forecasts) {
+        for (Forecast forecast : forecasts) {
             ContentValues contentValues = new ContentValues();
             contentValues.put("cityId", cityId);
             contentValues.put("date", forecast.date);
@@ -105,7 +114,7 @@ public class DatabaseAdapter {
                 "CREATE TABLE " + TBL_CUR_CONDITIONS + " (cityId INTEGER, " +
                         "temperature INTEGER NOT NULL, " +
                         "pressure INTEGER, " +
-                        "windDir INTEGER, " +
+                        "windDir TEXT, " +
                         "windSpeed INTEGER, " +
                         "humidity INTEGER, " +
                         "observationTime TEXT NOT NULL, " +
@@ -115,7 +124,7 @@ public class DatabaseAdapter {
                         "date TEXT NOT NULL, " +
                         "tempMax INTEGER NOT NULL, " +
                         "tempMin INTEGER NOT NULL, " +
-                        "windDir INTEGER, " +
+                        "windDir TEXT, " +
                         "windSpeed INTEGER, " +
                         "iconName TEXT," +
                         "FOREIGN KEY(cityId) REFERENCES " + TBL_CITY + "(_id));"
