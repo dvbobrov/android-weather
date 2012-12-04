@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Weather</string>
+    <string name="app_name">Weather</string><string name="celsius">°C</string><string name="pressure">Pressure</string><string name="mock_pressure">750</string><string name="mmhg">mmHg</string><string name="humidity">Humidity</string><string name="mock_humidity">99</string><string name="percent">%</string><string name="wind">Wind</string><string name="dir_N">N</string><string name="mock_windspeed">10</string><string name="kmph">km/h</string>
 </resources>
