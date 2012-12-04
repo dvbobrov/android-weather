@@ -177,6 +177,11 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
 
                                 editor.putLong("updateInterval", newInterval);
                                 editor.commit();
+                                Intent svc = new Intent(MainActivity.this, WeatherService.class);
+                                stopService(svc);
+                                unbindService(MainActivity.this);
+                                startService(svc);
+                                bindService(svc, MainActivity.this, BIND_NOT_FOREGROUND);
                                 break;
                             case DialogInterface.BUTTON_NEGATIVE:
                                 break;
