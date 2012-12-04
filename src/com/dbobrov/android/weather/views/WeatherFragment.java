@@ -8,11 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.dbobrov.android.weather.R;
 import com.dbobrov.android.weather.database.DataLayer;
 import com.dbobrov.android.weather.network.ApiClient;
+import com.dbobrov.android.weather.network.IconGetter;
 
 /**
  * Created with IntelliJ IDEA.
@@ -28,6 +30,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
 
     // Data containers
     private TextView temperature, pressure, humidity, windDir, windSpeed, observationTime, cityName;
+    private ImageView weatherIcon;
     private ListView forecast;
     private Button refresh;
 
@@ -60,9 +63,10 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
         forecast = (ListView) cityView.findViewById(R.id.forecast);
         refresh = (Button) cityView.findViewById(R.id.btnRefresh);
         refresh.setOnClickListener(this);
-
+        weatherIcon = (ImageView) cityView.findViewById(R.id.weatherIcon);
         cityName = getTextView(R.id.cityName);
         cityName.setText(this.city);
+        updateView();
         return cityView;
     }
 
@@ -88,6 +92,8 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
         observationTime.setText(cursor.getString(6));
         String iconName = cursor.getString(7);
         cursor.close();
+        IconGetter.addElement(iconName, weatherIcon);
 
+        dataLayer.close();
     }
 }

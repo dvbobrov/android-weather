@@ -42,6 +42,7 @@ public class WeatherService extends Service {
         Log.i(TAG, "Service destroyed");
     }
 
+    @Override
     public IBinder onBind(Intent intent) {
         return new IService.Stub() {
 

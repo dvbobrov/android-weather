@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Locale;
@@ -199,7 +200,17 @@ public class ApiClient {
     }
 
     public static int windDir16PointToResourceString(String windDir) {
-        if ("N".equals(windDir))
+        Class<R.string> stringClass = R.string.class;
+        try {
+            Field field = stringClass.getField("dir_" + windDir);
+            return field.getInt(null);
+        } catch (NoSuchFieldException e) {
+            return R.string.unknown;
+        } catch (IllegalAccessException e) {
+            return R.string.unknown;
+        }
+
+        /*if ("N".equals(windDir))
             return R.string.dir_N;
         if ("E".equals(windDir))
             return R.string.dir_E;
@@ -231,6 +242,6 @@ public class ApiClient {
             return R.string.dir_SEE;
         if ("SWW".equals(windDir))
             return R.string.dir_SWW;
-        return R.string.unknown;
+        return R.string.unknown;  */
     }
 }
