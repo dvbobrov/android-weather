@@ -1,4 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Weather</string><string name="celsius">°C</string><string name="pressure">Pressure</string><string name="mock_pressure">750</string><string name="mmhg">mmHg</string><string name="humidity">Humidity</string><string name="mock_humidity">99</string><string name="percent">%</string><string name="wind">Wind</string><string name="dir_N">N</string><string name="mock_windspeed">10</string><string name="kmph">km/h</string>
+    <string name="app_name">Weather</string>
+    <string name="celsius">°C</string>
+    <string name="pressure">Pressure</string>
+    <string name="mock_pressure">750</string>
+    <string name="mmhg">mmHg</string>
+    <string name="humidity">Humidity</string>
+    <string name="mock_humidity">99</string>
+    <string name="percent">%</string>
+    <string name="wind">Wind</string>
+    <string name="mock_windspeed">10</string>
+    <string name="kmph">km/h</string>
+    <string name="observation_time">Observation time</string>
+    <string name="mock_time">12:10 AM</string>
+    <string name="mock_temp">-1</string>
+    <string name="refresh">Refresh</string>
+    <string name="dir_N">N</string>
+    <string name="dir_S">S</string>
+    <string name="dir_E">E</string>
+    <string name="dir_W">W</string>
+    <string name="dir_NE">NE</string>
+    <string name="dir_NW">NW</string>
+    <string name="dir_SE">SE</string>
+    <string name="dir_SW">SW</string>
+    <string name="dir_NNE">NNE</string>
+    <string name="dir_NNW">NNW</string>
+    <string name="dir_NEE">NEE</string>
+    <string name="dir_NWW">NWW</string>
+    <string name="dir_SSE">SSE</string>
+    <string name="dir_SSW">SSW</string>
+    <string name="dir_SEE">SEE</string>
+    <string name="dir_SWW">SWW</string>
+    <string name="unknown">\?</string>
+
 </resources>

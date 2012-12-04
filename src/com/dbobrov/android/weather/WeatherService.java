@@ -31,7 +31,7 @@ public class WeatherService extends Service {
                 updateAllCities();
             }
         }, DELAY, UPDATE_INTERVAL);
-        Log.i(TAG, "Serivice started");
+        Log.i(TAG, "Service started");
     }
 
     @Override
@@ -39,6 +39,7 @@ public class WeatherService extends Service {
         if (timer != null) {
             timer.cancel();
         }
+        Log.i(TAG, "Service destroyed");
     }
 
     public IBinder onBind(Intent intent) {

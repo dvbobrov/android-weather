@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.location.*;
 import android.util.Log;
+import com.dbobrov.android.weather.R;
 import com.dbobrov.android.weather.database.DataLayer;
 import com.dbobrov.android.weather.models.Forecast;
 import org.apache.http.HttpResponse;
@@ -28,7 +29,7 @@ public class ApiClient {
     private static final int DAY_COUNT = 3;
     private static final String API_KEY = "3c185a104f135532121811";
     private static final String WEATHER_URL = "http://free.worldweatheronline.com/feed/weather.ashx?" +
-            "format=json&num_of_days=" + DAY_COUNT + "&api_key=" + API_KEY + "&q=";
+            "format=json&num_of_days=" + DAY_COUNT + "key=" + API_KEY + "&q=";
 
     private static final String CITY_SEARCH_URL = "http://www.worldweatheronline.com/feed/search.ashx?key=" +
             API_KEY +
@@ -195,5 +196,41 @@ public class ApiClient {
             forecasts[i] = new Forecast(o.getString("date"), o.getInt("tempMaxC"), o.getInt("tempMinC"),
                     o.getInt("windspeedKmph"), iconName, o.getString("winddir16Point"));
         }
+    }
+
+    public static int windDir16PointToResourceString(String windDir) {
+        if ("N".equals(windDir))
+            return R.string.dir_N;
+        if ("E".equals(windDir))
+            return R.string.dir_E;
+        if ("W".equals(windDir))
+            return R.string.dir_W;
+        if ("S".equals(windDir))
+            return R.string.dir_S;
+        if ("NE".equals(windDir))
+            return R.string.dir_NE;
+        if ("NW".equals(windDir))
+            return R.string.dir_NW;
+        if ("SE".equals(windDir))
+            return R.string.dir_SE;
+        if ("SW".equals(windDir))
+            return R.string.dir_SW;
+        if ("NNE".equals(windDir))
+            return R.string.dir_NNE;
+        if ("NNW".equals(windDir))
+            return R.string.dir_NNW;
+        if ("NEE".equals(windDir))
+            return R.string.dir_NEE;
+        if ("NWW".equals(windDir))
+            return R.string.dir_NWW;
+        if ("SSE".equals(windDir))
+            return R.string.dir_SSE;
+        if ("SSW".equals(windDir))
+            return R.string.dir_SSW;
+        if ("SEE".equals(windDir))
+            return R.string.dir_SEE;
+        if ("SWW".equals(windDir))
+            return R.string.dir_SWW;
+        return R.string.unknown;
     }
 }
