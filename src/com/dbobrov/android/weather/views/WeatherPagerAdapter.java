@@ -30,4 +30,9 @@ public class WeatherPagerAdapter extends FragmentStatePagerAdapter {
     public int getCount() {
         return fragments.size();
     }
+
+    @Override
+    public int getItemPosition(Object o) {
+        return POSITION_NONE;
+    }
 }

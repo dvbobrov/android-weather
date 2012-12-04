@@ -6,6 +6,7 @@ import android.location.*;
 import android.util.Log;
 import com.dbobrov.android.weather.R;
 import com.dbobrov.android.weather.database.DataLayer;
+import com.dbobrov.android.weather.models.City;
 import com.dbobrov.android.weather.models.Forecast;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -167,6 +168,23 @@ public class ApiClient {
             return false;
         }
         return true;
+    }
+
+    public City tryAddCity(String query) {
+        try {
+            JSONObject weather = downloadWeather(query);
+            String request = weather.getJSONObject("data").getJSONArray("request").getJSONObject(0).getString("query");
+            String[] cityData = request.split(", ");
+            dataLayer.open();
+            long id = dataLayer.addCity(cityData[0], cityData[1]);
+            writeWeatherUpdate(id, weather);
+            dataLayer.close();
+            return new City(id, cityData[0], cityData[1]);
+        } catch (IOException e) {
+        } catch (JSONException e) {
+        }
+
+        return null;
     }
 
     private void writeWeatherUpdate(long id, JSONObject json) throws JSONException {

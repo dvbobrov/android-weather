@@ -36,5 +36,6 @@
     <string name="add_city">Add city</string>
     <string name="del_city">Delete city</string>
     <string name="change_interval">Change update interval</string>
+    <string name="interval_hint">Enter interval in minutes</string>
 
 </resources>

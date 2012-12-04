@@ -2,6 +2,7 @@ package com.dbobrov.android.weather;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.*;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -10,6 +11,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,10 +22,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.dbobrov.android.weather.database.DataLayer;
+import com.dbobrov.android.weather.models.City;
 import com.dbobrov.android.weather.network.ApiClient;
 import com.dbobrov.android.weather.views.WeatherFragment;
 import com.dbobrov.android.weather.views.WeatherPagerAdapter;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,7 +115,7 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
                 long id = fragment.getCityId();
                 dataLayer.open().removeCity(id);
                 dataLayer.close();
-                Toast.makeText(this, "City will be deleted on next start", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "City will be deleted on next launch", Toast.LENGTH_SHORT).show();
                 fragment.setRefreshDisabled();
                 break;
             case M_CHANGE_INTERVAL:
@@ -140,18 +146,29 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
             case D_CHANGE_INTERVAL:
                 AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
                 dialogText = new EditText(this);
+
                 LinearLayout.LayoutParams params1 =
                         new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
                                 LinearLayout.LayoutParams.FILL_PARENT);
                 dialogText.setLayoutParams(params1);
+                dialogText.setHint(R.string.interval_hint);
                 builder1.setView(dialogText);
                 DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         switch (i) {
                             case DialogInterface.BUTTON_POSITIVE:
-                                int intervalMin = Integer.parseInt(dialogText.getText().toString());
-                                long newInterval = intervalMin * 1000 * 60;
+                                int intervalMin = -1;
+                                try {
+                                    intervalMin = Integer.parseInt(dialogText.getText().toString());
+                                } catch (NumberFormatException ignore) {
+                                }
+                                if (intervalMin < 0) {
+                                    Toast.makeText(MainActivity.this,
+                                            "Please, enter a positive number", Toast.LENGTH_SHORT).show();
+                                    break;
+                                }
+                                long newInterval = intervalMin * 1000L * 60L;
 
                                 SharedPreferences.Editor editor = PreferenceManager
                                         .getDefaultSharedPreferences(MainActivity.this).edit();
@@ -186,15 +203,46 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
     }
 
     private class AddCity extends AsyncTask<String, Void, Boolean> {
+        ProgressDialog dialog;
 
         @Override
-        protected Boolean doInBackground(String... strings) {
-            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        protected void onPreExecute() {
+            dialog = ProgressDialog.show(MainActivity.this, "Loading", null);
+            dialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(String... param) {
+            String query = param[0];
+            ApiClient client = new ApiClient(MainActivity.this);
+            City city = client.tryAddCity(query);
+            if (city != null) {
+                Fragment fragment = new WeatherFragment(city.id, city.name, city.country, MainActivity.this);
+                fragments.add(fragment);
+                return true;
+            }
+            return false;
         }
 
         @Override
         protected void onPostExecute(Boolean result) {
-
+            if (result) {
+                PagerAdapter adapter = viewPager.getAdapter();
+                adapter.notifyDataSetChanged();
+                viewPager.setAdapter(adapter);
+            }
+            if (dialog != null && dialog.isShowing()) {
+                dialog.dismiss();
+            }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (receiver != null) {
+            unregisterReceiver(receiver);
+        }
+        unbindService(this);
     }
 }
