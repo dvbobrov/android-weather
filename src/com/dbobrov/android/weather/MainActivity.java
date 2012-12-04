@@ -115,8 +115,10 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
                 long id = fragment.getCityId();
                 dataLayer.open().removeCity(id);
                 dataLayer.close();
-                Toast.makeText(this, "City will be deleted on next launch", Toast.LENGTH_SHORT).show();
-                fragment.setRefreshDisabled();
+                Toast.makeText(this, R.string.deleted, Toast.LENGTH_SHORT).show();
+//                fragment.setRefreshDisabled();
+                fragments.remove(fragment);
+                viewPager.getAdapter().notifyDataSetChanged();
                 break;
             case M_CHANGE_INTERVAL:
                 showDialog(D_CHANGE_INTERVAL);
@@ -226,14 +228,19 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
 
         @Override
         protected void onPostExecute(Boolean result) {
-            if (result) {
-                PagerAdapter adapter = viewPager.getAdapter();
-                adapter.notifyDataSetChanged();
-                viewPager.setAdapter(adapter);
-            }
+
             if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
             }
+            if (result) {
+                PagerAdapter adapter = viewPager.getAdapter();
+                adapter.notifyDataSetChanged();
+//                viewPager.setAdapter(adapter);
+                Toast.makeText(MainActivity.this, R.string.city_added, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(MainActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 

@@ -177,7 +177,7 @@ public class ApiClient {
             String[] cityData = request.split(", ");
             dataLayer.open();
             long id = dataLayer.addCity(cityData[0], cityData[1]);
-            writeWeatherUpdate(id, weather);
+            writeWeatherUpdate(id, weather.getJSONObject("data"));
             dataLayer.close();
             return new City(id, cityData[0], cityData[1]);
         } catch (IOException e) {
