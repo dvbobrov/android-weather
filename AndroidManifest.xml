@@ -15,5 +15,6 @@
             </intent-filter>
         </activity>
         <service android:name=".WeatherService"/>
+        <receiver android:name=".RepeatingAlarmService"/>
     </application>
 </manifest> 

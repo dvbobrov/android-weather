@@ -84,16 +84,19 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
         DataLayer dataLayer = new DataLayer(context);
         dataLayer.open();
         Cursor cursor = dataLayer.getCurrentConditions(cityId);
-        temperature.setText(cursor.getString(1));
-        pressure.setText(cursor.getString(2));
-        windDir.setText(ApiClient.windDir16PointToResourceString(cursor.getString(3)));
-        windSpeed.setText(cursor.getString(4));
-        humidity.setText(cursor.getString(5));
-        observationTime.setText(cursor.getString(6));
-        String iconName = cursor.getString(7);
+        if (cursor.moveToFirst()) {
+            temperature.setText(cursor.getString(1));
+            pressure.setText(cursor.getString(2));
+            windDir.setText(ApiClient.windDir16PointToResourceString(cursor.getString(3)));
+            windSpeed.setText(cursor.getString(4));
+            humidity.setText(cursor.getString(5));
+            observationTime.setText(cursor.getString(6));
+            String iconName = cursor.getString(7);
+            IconGetter.addElement(iconName, weatherIcon);
+        } else {
+            // TODO update weather
+        }
         cursor.close();
-        IconGetter.addElement(iconName, weatherIcon);
-
         dataLayer.close();
     }
 }

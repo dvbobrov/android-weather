@@ -1,9 +1,12 @@
 package com.dbobrov.android.weather;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.Log;
 import com.dbobrov.android.weather.network.ApiClient;
 
@@ -11,33 +14,32 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class WeatherService extends Service {
-    private static final String TAG = "WeatherSvc";
-    private static final int UPDATE_INTERVAL = 30 * 60 * 1000; // 30 min
-    private static final int DELAY = 1000;
-    private Timer timer;
+    public static final String TAG = "WeatherSvc";
+    private static final int UPDATE_INTERVAL = 30 * 60 * 1000, // 30 min
+            FIRST_RUN = 1000;
 
-    public static final int B_ALL_WEATHER = 0;
+
+    private AlarmManager alarmManager;
+    private static final int ALARM_CODE = 1;
 
     private Intent intent;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        intent = new Intent(TAG);
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                updateAllCities();
-            }
-        }, DELAY, UPDATE_INTERVAL);
+        intent = new Intent(this, RepeatingAlarmService.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, ALARM_CODE, intent, 0);
+        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + FIRST_RUN,
+                UPDATE_INTERVAL, pendingIntent);
         Log.i(TAG, "Service started");
     }
 
     @Override
     public void onDestroy() {
-        if (timer != null) {
-            timer.cancel();
+        if (alarmManager != null) {
+            alarmManager.cancel(PendingIntent.getBroadcast(this, ALARM_CODE, intent, 0));
         }
         Log.i(TAG, "Service destroyed");
     }
@@ -54,11 +56,5 @@ public class WeatherService extends Service {
         };
     }
 
-    private void updateAllCities() {
-        ApiClient apiClient = new ApiClient(this);
-        if (apiClient.updateWeather()) {
-            intent.putExtra("Data", B_ALL_WEATHER);
-            sendBroadcast(intent);
-        }
-    }
+
 }
