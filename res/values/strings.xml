@@ -33,5 +33,8 @@
     <string name="dir_WSW">WSW</string>
     <string name="unknown">\?</string>
     <string name="ndash">–</string>
+    <string name="add_city">Add city</string>
+    <string name="del_city">Delete city</string>
+    <string name="change_interval">Change update interval</string>
 
 </resources>

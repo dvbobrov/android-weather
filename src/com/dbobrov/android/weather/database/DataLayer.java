@@ -10,9 +10,9 @@ import com.dbobrov.android.weather.models.Forecast;
 
 public class DataLayer {
     private static final String TAG = "com.dbobrov.android.WeatherDBAdapter";
-    private static final String TBL_CITY = "City";
-    private static final String TBL_CUR_CONDITIONS = "CurrentConditions";
-    private static final String TBL_FORECAST = "Forecast";
+    public static final String TBL_CITY = "City";
+    public static final String TBL_CUR_CONDITIONS = "CurrentConditions";
+    public static final String TBL_FORECAST = "Forecast";
 
     //    private final Context context;
     private final DatabaseHelper dbHelper;
@@ -39,6 +39,12 @@ public class DataLayer {
 
     public Cursor getCityForecast(long cityId) {
         return db.query(TBL_FORECAST, null, "cityId=" + cityId, null, null, null, null);
+    }
+
+    public void removeCity(long cityId) {
+        db.delete(TBL_FORECAST, "cityId=" + cityId, null);
+        db.delete(TBL_CUR_CONDITIONS, "cityId=" + cityId, null);
+        db.delete(TBL_CITY, "_id=" + cityId, null);
     }
 
     public Cursor getCurrentConditions(long cityId) {

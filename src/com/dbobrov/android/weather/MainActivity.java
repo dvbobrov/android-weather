@@ -1,14 +1,24 @@
 package com.dbobrov.android.weather;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.*;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 import com.dbobrov.android.weather.database.DataLayer;
 import com.dbobrov.android.weather.network.ApiClient;
 import com.dbobrov.android.weather.views.WeatherFragment;
@@ -17,7 +27,7 @@ import com.dbobrov.android.weather.views.WeatherPagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends FragmentActivity implements ServiceConnection {
+public class MainActivity extends FragmentActivity implements ServiceConnection, DialogInterface.OnClickListener {
 
     private ViewPager viewPager;
 
@@ -50,7 +60,9 @@ public class MainActivity extends FragmentActivity implements ServiceConnection 
             }
         };
         registerReceiver(receiver, filter);
-        bindService(new Intent(this, WeatherService.class), this, BIND_AUTO_CREATE);
+        Intent intent = new Intent(this, WeatherService.class);
+        startService(intent);
+        bindService(intent, this, BIND_NOT_FOREGROUND);
 
         dataLayer = new DataLayer(this).open();
         viewPager = (ViewPager) findViewById(R.id.pager);
@@ -73,5 +85,116 @@ public class MainActivity extends FragmentActivity implements ServiceConnection 
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
         service = null;
+    }
+
+    private static final int M_ADD_CITY = 0, M_DEL_CITY = 1, M_CHANGE_INTERVAL = 2;
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, M_ADD_CITY, 0, R.string.add_city);
+        menu.add(0, M_DEL_CITY, 0, R.string.del_city);
+        menu.add(0, M_CHANGE_INTERVAL, 0, R.string.change_interval);
+        return false;
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        switch (item.getItemId()) {
+            case M_ADD_CITY:
+                showDialog(D_ADD_CITY);
+                break;
+            case M_DEL_CITY:
+                WeatherFragment fragment = (WeatherFragment) fragments.get(viewPager.getCurrentItem());
+                long id = fragment.getCityId();
+                dataLayer.open().removeCity(id);
+                dataLayer.close();
+                Toast.makeText(this, "City will be deleted on next start", Toast.LENGTH_SHORT).show();
+                fragment.setRefreshDisabled();
+                break;
+            case M_CHANGE_INTERVAL:
+                showDialog(D_CHANGE_INTERVAL);
+                break;
+        }
+        return true;
+    }
+
+    private static final int D_ADD_CITY = 0, D_CHANGE_INTERVAL = 1;
+    private EditText dialogText;
+
+    @Override
+    public Dialog onCreateDialog(int id) {
+
+        switch (id) {
+            case D_ADD_CITY:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                dialogText = new EditText(this);
+                LinearLayout.LayoutParams params =
+                        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+                                LinearLayout.LayoutParams.FILL_PARENT);
+                dialogText.setLayoutParams(params);
+                builder.setView(dialogText);
+                builder.setPositiveButton("Ok", this)
+                        .setNegativeButton("Cancel", this);
+                return builder.create();
+            case D_CHANGE_INTERVAL:
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+                dialogText = new EditText(this);
+                LinearLayout.LayoutParams params1 =
+                        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+                                LinearLayout.LayoutParams.FILL_PARENT);
+                dialogText.setLayoutParams(params1);
+                builder1.setView(dialogText);
+                DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        switch (i) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                int intervalMin = Integer.parseInt(dialogText.getText().toString());
+                                long newInterval = intervalMin * 1000 * 60;
+
+                                SharedPreferences.Editor editor = PreferenceManager
+                                        .getDefaultSharedPreferences(MainActivity.this).edit();
+
+                                editor.putLong("updateInterval", newInterval);
+                                editor.commit();
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                break;
+                        }
+                        dialogText = null;
+                    }
+                };
+                builder1.setPositiveButton("Ok", listener)
+                        .setNegativeButton("Cancel", listener);
+                return builder1.create();
+        }
+        return super.onCreateDialog(id);
+    }
+
+    @Override
+    public void onClick(DialogInterface dialogInterface, int which) {
+        switch (which) {
+            case DialogInterface.BUTTON_POSITIVE:
+                String query = dialogText.getText().toString();
+                new AddCity().execute(query);
+                break;
+            case DialogInterface.BUTTON_NEGATIVE:
+                break;
+        }
+        dialogText = null;
+    }
+
+    private class AddCity extends AsyncTask<String, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... strings) {
+            return null;  //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+
+        }
     }
 }

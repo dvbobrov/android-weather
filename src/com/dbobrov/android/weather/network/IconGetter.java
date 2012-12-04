@@ -72,4 +72,5 @@ public class IconGetter extends AsyncTask<Void, Pair<ImageView, Bitmap>, Void> {
         }
     }
 
+
 }

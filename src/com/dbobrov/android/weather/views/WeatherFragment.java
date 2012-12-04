@@ -35,6 +35,8 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
     private View cityView;
     private final Context context;
 
+
+
     public class UpdateCurrentWeather extends AsyncTask<Void, Void, Boolean> {
 
         @Override
@@ -103,6 +105,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnRefresh:
+                cityView.findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
                 new UpdateCurrentWeather().execute(null);
                 break;
         }
@@ -139,5 +142,12 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
         dataLayer.close();
         ForecastListAdapter adapter = new ForecastListAdapter((Activity) context, forecasts);
         forecast.setAdapter(adapter);
+        cityView.findViewById(R.id.progressBar).setVisibility(View.GONE);
+    }
+
+    public void setRefreshDisabled() {
+        if (cityView != null) {
+            refresh.setEnabled(false);
+        }
     }
 }
