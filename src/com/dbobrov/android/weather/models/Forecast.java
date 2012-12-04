@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public class Forecast implements Serializable {
     public String date;
-    public int tempMax, tempMin;
-    public int windSpeed;
+    public String tempMax, tempMin;
+    public String windSpeed;
     public String windDir;
     public String iconName;
 
@@ -13,7 +13,7 @@ public class Forecast implements Serializable {
 
     }
 
-    public Forecast(String date, int tempMax, int tempMin, int windSpeed, String iconName, String windDir) {
+    public Forecast(String date, String tempMax, String tempMin, String windSpeed, String iconName, String windDir) {
         this.iconName = iconName;
         this.tempMin = tempMin;
         this.windSpeed = windSpeed;

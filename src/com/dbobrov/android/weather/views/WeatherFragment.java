@@ -110,6 +110,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
 
 
     public void updateView() {
+        if (cityView == null) return;
         DataLayer dataLayer = new DataLayer(context);
         dataLayer.open();
         Cursor cursor = dataLayer.getCurrentConditions(cityId);
@@ -128,14 +129,15 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
         List<Forecast> forecasts = new ArrayList<Forecast>();
         while (cursor.moveToNext()) {
             forecasts.add(new Forecast(cursor.getString(1),
-                    cursor.getInt(2),
-                    cursor.getInt(3),
-                    cursor.getInt(5),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getString(5),
                     cursor.getString(6),
                     getString(ApiClient.windDir16PointToResourceString(cursor.getString(4)))));
         }
+        cursor.close();
+        dataLayer.close();
         ForecastListAdapter adapter = new ForecastListAdapter((Activity) context, forecasts);
         forecast.setAdapter(adapter);
-        dataLayer.close();
     }
 }

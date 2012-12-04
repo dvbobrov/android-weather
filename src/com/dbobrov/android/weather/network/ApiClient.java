@@ -30,7 +30,7 @@ public class ApiClient {
     private static final int DAY_COUNT = 3;
     private static final String API_KEY = "3c185a104f135532121811";
     private static final String WEATHER_URL = "http://free.worldweatheronline.com/feed/weather.ashx?" +
-            "format=json&num_of_days=" + DAY_COUNT + "key=" + API_KEY + "&q=";
+            "format=json&num_of_days=" + DAY_COUNT + "&key=" + API_KEY + "&q=";
 
     private static final String CITY_SEARCH_URL = "http://www.worldweatheronline.com/feed/search.ashx?key=" +
             API_KEY +
@@ -178,10 +178,14 @@ public class ApiClient {
                 break;
             }
         }
-        dataLayer.updateCurrentConditions(id, currentConditions.getInt("temp_C"),
-                currentConditions.getInt("pressure"), currentConditions.getString("winddir16Point"),
-                currentConditions.getInt("windspeedKmph"), currentConditions.getInt("humidity"),
-                currentConditions.getString("observation_time"), iconName);
+
+        int pressureBars = Integer.parseInt(currentConditions.getString("pressure"));
+        int mmHg = (int) (pressureBars * 0.750061683);
+
+        dataLayer.updateCurrentConditions(id, currentConditions.optString("temp_C", ""),
+                Integer.toString(mmHg), currentConditions.optString("winddir16Point", ""),
+                currentConditions.optString("windspeedKmph", ""), currentConditions.optString("humidity", ""),
+                currentConditions.optString("observation_time", ""), iconName);
 
         JSONArray forecastJson = json.getJSONArray("weather");
         Forecast[] forecasts = new Forecast[DAY_COUNT];
@@ -194,15 +198,17 @@ public class ApiClient {
                     break;
                 }
             }
-            forecasts[i] = new Forecast(o.getString("date"), o.getInt("tempMaxC"), o.getInt("tempMinC"),
-                    o.getInt("windspeedKmph"), iconName, o.getString("winddir16Point"));
+            forecasts[i] = new Forecast(o.optString("date", ""), o.optString("tempMaxC", ""), o.optString("tempMinC", ""),
+                    o.optString("windspeedKmph", ""), iconName, o.optString("winddir16Point", ""));
         }
+        dataLayer.updateForecast(id, forecasts);
     }
 
     public static int windDir16PointToResourceString(String windDir) {
         Class<R.string> stringClass = R.string.class;
         try {
             Field field = stringClass.getField("dir_" + windDir);
+            field.setAccessible(true);
             return field.getInt(null);
         } catch (NoSuchFieldException e) {
             return R.string.unknown;

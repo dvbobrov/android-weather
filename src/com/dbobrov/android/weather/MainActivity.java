@@ -52,7 +52,7 @@ public class MainActivity extends FragmentActivity implements ServiceConnection 
         registerReceiver(receiver, filter);
         bindService(new Intent(this, WeatherService.class), this, BIND_AUTO_CREATE);
 
-        dataLayer = new DataLayer(this);
+        dataLayer = new DataLayer(this).open();
         viewPager = (ViewPager) findViewById(R.id.pager);
         fragments = new ArrayList<Fragment>();
 
@@ -60,6 +60,8 @@ public class MainActivity extends FragmentActivity implements ServiceConnection 
         while (cursor.moveToNext()) {
             fragments.add(new WeatherFragment(cursor.getLong(0), cursor.getString(1), cursor.getString(2), this));
         }
+        cursor.close();
+        dataLayer.close();
         viewPager.setAdapter(new WeatherPagerAdapter(getSupportFragmentManager(), fragments));
     }
 

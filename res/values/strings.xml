@@ -25,12 +25,13 @@
     <string name="dir_SW">SW</string>
     <string name="dir_NNE">NNE</string>
     <string name="dir_NNW">NNW</string>
-    <string name="dir_NEE">NEE</string>
-    <string name="dir_NWW">NWW</string>
+    <string name="dir_ENE">ENE</string>
+    <string name="dir_WNW">WNW</string>
     <string name="dir_SSE">SSE</string>
     <string name="dir_SSW">SSW</string>
-    <string name="dir_SEE">SEE</string>
-    <string name="dir_SWW">SWW</string>
-    <string name="unknown">\?</string><string name="ndash">–</string>
+    <string name="dir_ESE">ESE</string>
+    <string name="dir_WSW">WSW</string>
+    <string name="unknown">\?</string>
+    <string name="ndash">–</string>
 
 </resources>

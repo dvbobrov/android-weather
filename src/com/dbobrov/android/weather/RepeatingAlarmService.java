@@ -3,6 +3,7 @@ package com.dbobrov.android.weather;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import com.dbobrov.android.weather.network.ApiClient;
 
 /**
@@ -19,6 +20,7 @@ public class RepeatingAlarmService extends BroadcastReceiver {
 
     private void updateAllCities(Context context) {
         ApiClient apiClient = new ApiClient(context);
+        Log.i(WeatherService.TAG, "Updating all cities");
         if (apiClient.updateWeather()) {
             Intent intent = new Intent(WeatherService.TAG);
             intent.putExtra("Data", B_ALL_WEATHER);

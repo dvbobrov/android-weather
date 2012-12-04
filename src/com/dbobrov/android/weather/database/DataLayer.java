@@ -9,7 +9,7 @@ import android.util.Log;
 import com.dbobrov.android.weather.models.Forecast;
 
 public class DataLayer {
-    private static final String TAG = "WeatherDBAdapter";
+    private static final String TAG = "com.dbobrov.android.WeatherDBAdapter";
     private static final String TBL_CITY = "City";
     private static final String TBL_CUR_CONDITIONS = "CurrentConditions";
     private static final String TBL_FORECAST = "Forecast";
@@ -68,8 +68,8 @@ public class DataLayer {
         return id;
     }
 
-    public boolean updateCurrentConditions(long cityId, int temperature, int pressure, String windDir, int windSpeed,
-                                           int humidity, String observationTime, String iconName) {
+    public boolean updateCurrentConditions(long cityId, String temperature, String pressure, String windDir, String windSpeed,
+                                           String humidity, String observationTime, String iconName) {
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("temperature", temperature);
@@ -112,22 +112,25 @@ public class DataLayer {
                         "name TEXT NOT NULL, " +
                         "country TEXT NOT NULL);",
                 "CREATE TABLE " + TBL_CUR_CONDITIONS + " (cityId INTEGER, " +
-                        "temperature INTEGER NOT NULL, " +
-                        "pressure INTEGER, " +
+                        "temperature TEXT NOT NULL, " +
+                        "pressure TEXT, " +
                         "windDir TEXT, " +
-                        "windSpeed INTEGER, " +
-                        "humidity INTEGER, " +
+                        "windSpeed TEXT, " +
+                        "humidity TEXT, " +
                         "observationTime TEXT NOT NULL, " +
                         "iconName TEXT," +
                         "FOREIGN KEY(cityId) REFERENCES " + TBL_CITY + "(_id));",
                 "CREATE TABLE " + TBL_FORECAST + " (cityId INTEGER, " +
                         "date TEXT NOT NULL, " +
-                        "tempMax INTEGER NOT NULL, " +
-                        "tempMin INTEGER NOT NULL, " +
+                        "tempMax TEXT NOT NULL, " +
+                        "tempMin TEXT NOT NULL, " +
                         "windDir TEXT, " +
-                        "windSpeed INTEGER, " +
+                        "windSpeed TEXT, " +
                         "iconName TEXT," +
-                        "FOREIGN KEY(cityId) REFERENCES " + TBL_CITY + "(_id));"
+                        "FOREIGN KEY(cityId) REFERENCES " + TBL_CITY + "(_id));",
+                "INSERT INTO " + TBL_CITY + " (name, country) VALUES ('Moscow', 'Russia');",
+                "INSERT INTO " + TBL_CITY + " (name, country) VALUES ('Paris', 'France');",
+                "INSERT INTO " + TBL_CITY + " (name, country) VALUES ('Saint Petersburg', 'Russia');",
         };
 
 

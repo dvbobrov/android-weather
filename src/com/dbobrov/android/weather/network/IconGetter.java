@@ -1,12 +1,14 @@
 package com.dbobrov.android.weather.network;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.Pair;
 import android.widget.ImageView;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -20,7 +22,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * Time: 15:51
  */
 public class IconGetter extends AsyncTask<Void, Pair<ImageView, Bitmap>, Void> {
-    private static final String TAG = "IconGetter";
+    private static final String TAG = "com.dbobrov.android.IconGetter";
     private static final String ROOT_URL = "http://www.worldweatheronline.com/images/wsymbols01_png_64/";
     private static volatile IconGetter instance = null;
 
@@ -48,14 +50,16 @@ public class IconGetter extends AsyncTask<Void, Pair<ImageView, Bitmap>, Void> {
                 URL url = new URL(ROOT_URL + item.first);
                 URLConnection connection = url.openConnection();
                 connection.setUseCaches(true);
-                Object response = connection.getContent();
-                if (response instanceof Bitmap) {
-                    publishProgress(new Pair<ImageView, Bitmap>(item.second, (Bitmap) response));
-                }
+                InputStream response = connection.getInputStream();
+                Bitmap bitmap = BitmapFactory.decodeStream(response);
+
+                publishProgress(new Pair<ImageView, Bitmap>(item.second, bitmap));
+
             } catch (MalformedURLException e) {
                 Log.e(TAG, "Invalid URL");
             } catch (IOException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                Log.e(TAG, "Cannot download image");
             }
         }
         return null;
