@@ -57,7 +57,7 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
                     int data = intent.getIntExtra("Data", -1);
                     if (data == RepeatingAlarmService.B_ALL_WEATHER) {
                         for (Fragment fragment : fragments) {
-                            if (fragment instanceof WeatherFragment) {
+                            if (fragment instanceof WeatherFragment && fragment.isVisible()) {
                                 ((WeatherFragment) fragment).updateView();
                             }
                         }
