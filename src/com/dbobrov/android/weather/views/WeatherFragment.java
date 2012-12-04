@@ -1,7 +1,9 @@
 package com.dbobrov.android.weather.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -11,10 +13,15 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import com.dbobrov.android.weather.MainActivity;
 import com.dbobrov.android.weather.R;
 import com.dbobrov.android.weather.database.DataLayer;
+import com.dbobrov.android.weather.models.Forecast;
 import com.dbobrov.android.weather.network.ApiClient;
 import com.dbobrov.android.weather.network.IconGetter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,10 +30,27 @@ import com.dbobrov.android.weather.network.IconGetter;
  * Time: 14:11
  */
 public class WeatherFragment extends Fragment implements View.OnClickListener {
-    private final int cityId;
+    private final long cityId;
     private final String city, country;
     private View cityView;
     private final Context context;
+
+    public class UpdateCurrentWeather extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            ApiClient client = new ApiClient(context);
+            return client.updateWeather(cityId);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (result) {
+                updateView();
+            }
+        }
+    }
+
 
     // Data containers
     private TextView temperature, pressure, humidity, windDir, windSpeed, observationTime, cityName;
@@ -34,11 +58,16 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
     private ListView forecast;
     private Button refresh;
 
-    public WeatherFragment(int cityId, String city, String country, Context context) {
+    public WeatherFragment(long cityId, String city, String country, Context context) {
         this.cityId = cityId;
         this.city = city;
         this.country = country;
         this.context = context;
+    }
+
+
+    public long getCityId() {
+        return cityId;
     }
 
     @Override
@@ -74,13 +103,13 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnRefresh:
-                //TODO update weather
+                new UpdateCurrentWeather().execute(null);
                 break;
         }
     }
 
 
-    private void updateView() {
+    public void updateView() {
         DataLayer dataLayer = new DataLayer(context);
         dataLayer.open();
         Cursor cursor = dataLayer.getCurrentConditions(cityId);
@@ -93,10 +122,20 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
             observationTime.setText(cursor.getString(6));
             String iconName = cursor.getString(7);
             IconGetter.addElement(iconName, weatherIcon);
-        } else {
-            // TODO update weather
         }
         cursor.close();
+        cursor = dataLayer.getCityForecast(cityId);
+        List<Forecast> forecasts = new ArrayList<Forecast>();
+        while (cursor.moveToNext()) {
+            forecasts.add(new Forecast(cursor.getString(1),
+                    cursor.getInt(2),
+                    cursor.getInt(3),
+                    cursor.getInt(5),
+                    cursor.getString(6),
+                    getString(ApiClient.windDir16PointToResourceString(cursor.getString(4)))));
+        }
+        ForecastListAdapter adapter = new ForecastListAdapter((Activity) context, forecasts);
+        forecast.setAdapter(adapter);
         dataLayer.close();
     }
 }

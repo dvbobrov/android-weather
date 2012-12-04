@@ -31,6 +31,6 @@
     <string name="dir_SSW">SSW</string>
     <string name="dir_SEE">SEE</string>
     <string name="dir_SWW">SWW</string>
-    <string name="unknown">\?</string>
+    <string name="unknown">\?</string><string name="ndash">–</string>
 
 </resources>

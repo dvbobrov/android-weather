@@ -14,7 +14,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class WeatherService extends Service {
-    public static final String TAG = "WeatherSvc";
+    public static final String TAG = "com.dbobrov.android.WeatherSvc";
     private static final int UPDATE_INTERVAL = 30 * 60 * 1000, // 30 min
             FIRST_RUN = 1000;
 
