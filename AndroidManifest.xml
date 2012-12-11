@@ -29,5 +29,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
+
+        <provider android:name=".database.WeatherProvider" android:authorities="com.dbobrov.android.weather.provider"/>
     </application>
 </manifest> 

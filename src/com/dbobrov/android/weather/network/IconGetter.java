@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.Pair;
+import android.view.View;
 import android.widget.ImageView;
 
 import java.io.IOException;
@@ -46,6 +47,7 @@ public class IconGetter extends AsyncTask<Void, Pair<ImageView, Bitmap>, Void> {
     protected Void doInBackground(Void... params) {
         while (!queue.isEmpty()) {
             Pair<String, ImageView> item = queue.poll();
+            if (!item.second.isShown()) continue;
             try {
                 URL url = new URL(ROOT_URL + item.first);
                 URLConnection connection = url.openConnection();

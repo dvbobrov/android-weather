@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.*;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -15,21 +16,15 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
-import com.dbobrov.android.weather.database.DataLayer;
+import com.dbobrov.android.weather.database.WeatherProvider;
 import com.dbobrov.android.weather.models.City;
 import com.dbobrov.android.weather.network.ApiClient;
 import com.dbobrov.android.weather.views.WeatherFragment;
 import com.dbobrov.android.weather.views.WeatherPagerAdapter;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +32,7 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
 
     private ViewPager viewPager;
 
-    private DataLayer dataLayer;
+    //    private DataLayer dataLayer;
     private List<Fragment> fragments;
 
     private BroadcastReceiver receiver;
@@ -70,16 +65,17 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
         startService(intent);
         bindService(intent, this, BIND_NOT_FOREGROUND);
 
-        dataLayer = new DataLayer(this).open();
+//        dataLayer = new DataLayer(this).open();
         viewPager = (ViewPager) findViewById(R.id.pager);
         fragments = new ArrayList<Fragment>();
 
-        Cursor cursor = dataLayer.getCities();
+//        Cursor cursor = dataLayer.getCities();
+        Cursor cursor = managedQuery(WeatherProvider.CONTENT_CITY_URI, null, null, null, null);
         while (cursor.moveToNext()) {
             fragments.add(new WeatherFragment(cursor.getLong(0), cursor.getString(1), cursor.getString(2), this));
         }
         cursor.close();
-        dataLayer.close();
+//        dataLayer.close();
         viewPager.setAdapter(new WeatherPagerAdapter(getSupportFragmentManager(), fragments));
     }
 
@@ -113,8 +109,9 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
             case M_DEL_CITY:
                 WeatherFragment fragment = (WeatherFragment) fragments.get(viewPager.getCurrentItem());
                 long id = fragment.getCityId();
-                dataLayer.open().removeCity(id);
-                dataLayer.close();
+                getContentResolver().delete(Uri.withAppendedPath(WeatherProvider.CONTENT_CITY_URI, String.valueOf(id)), null, null);
+               /* dataLayer.open().removeCity(id);
+                dataLayer.close();*/
                 Toast.makeText(this, R.string.deleted, Toast.LENGTH_SHORT).show();
 //                fragment.setRefreshDisabled();
                 fragments.remove(fragment);

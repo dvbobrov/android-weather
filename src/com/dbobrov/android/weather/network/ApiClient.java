@@ -233,39 +233,5 @@ public class ApiClient {
         } catch (IllegalAccessException e) {
             return R.string.unknown;
         }
-
-        /*if ("N".equals(windDir))
-            return R.string.dir_N;
-        if ("E".equals(windDir))
-            return R.string.dir_E;
-        if ("W".equals(windDir))
-            return R.string.dir_W;
-        if ("S".equals(windDir))
-            return R.string.dir_S;
-        if ("NE".equals(windDir))
-            return R.string.dir_NE;
-        if ("NW".equals(windDir))
-            return R.string.dir_NW;
-        if ("SE".equals(windDir))
-            return R.string.dir_SE;
-        if ("SW".equals(windDir))
-            return R.string.dir_SW;
-        if ("NNE".equals(windDir))
-            return R.string.dir_NNE;
-        if ("NNW".equals(windDir))
-            return R.string.dir_NNW;
-        if ("NEE".equals(windDir))
-            return R.string.dir_NEE;
-        if ("NWW".equals(windDir))
-            return R.string.dir_NWW;
-        if ("SSE".equals(windDir))
-            return R.string.dir_SSE;
-        if ("SSW".equals(windDir))
-            return R.string.dir_SSW;
-        if ("SEE".equals(windDir))
-            return R.string.dir_SEE;
-        if ("SWW".equals(windDir))
-            return R.string.dir_SWW;
-        return R.string.unknown;  */
     }
 }
