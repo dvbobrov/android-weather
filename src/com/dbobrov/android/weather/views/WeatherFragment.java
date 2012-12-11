@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import com.dbobrov.android.weather.MainActivity;
 import com.dbobrov.android.weather.R;
 import com.dbobrov.android.weather.database.DataLayer;
 import com.dbobrov.android.weather.models.Forecast;
@@ -22,6 +21,9 @@ import com.dbobrov.android.weather.network.IconGetter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created with IntelliJ IDEA.
@@ -34,6 +36,8 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
     private final String city, country;
     private View cityView;
     private final Context context;
+
+    private static final Pattern TIME_PATTERN = Pattern.compile("^(\\d+):(\\d+) (AM|PM)$");
 
 
 
@@ -125,7 +129,8 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
             windDir.setText(ApiClient.windDir16PointToResourceString(cursor.getString(3)));
             windSpeed.setText(cursor.getString(4));
             humidity.setText(cursor.getString(5));
-            observationTime.setText(cursor.getString(6));
+            String time = cursor.getString(6);
+            observationTime.setText(timeOffset(time));
             String iconName = cursor.getString(7);
             IconGetter.addElement(iconName, weatherIcon);
         }
@@ -145,6 +150,23 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
         ForecastListAdapter adapter = new ForecastListAdapter((Activity) context, forecasts);
         forecast.setAdapter(adapter);
         cityView.findViewById(R.id.progressBar).setVisibility(View.GONE);
+    }
+
+    private static String timeOffset(String time) {
+        Matcher matcher = TIME_PATTERN.matcher(time);
+        if (!matcher.find()) return time;
+        int hours = Integer.parseInt(matcher.group(1));
+        int minutes = Integer.parseInt(matcher.group(2));
+        String ampm = matcher.group(3);
+        int offset = TimeZone.getDefault().getRawOffset() / 60000;
+        minutes += offset;
+        hours += offset / 60;
+        minutes %= 60;
+        if (hours / 12 > 0) {
+            hours %= 12;
+            ampm = ampm.equals("AM") ? "PM" : "AM";
+        }
+        return String.format("%d:%d %s", hours, minutes, ampm);
     }
 
     public void setRefreshDisabled() {
