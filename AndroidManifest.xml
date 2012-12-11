@@ -22,7 +22,8 @@
         <service android:name=".WeatherService"
                  android:process=":bg_process"
                 />
-        <receiver android:name=".RepeatingAlarmService"/>
+        <receiver android:name=".RepeatingAlarmService"
+                  android:process=":bg_process"/>
         <receiver android:name=".OnBootReceiver"
                   android:exported="false">
             <intent-filter>

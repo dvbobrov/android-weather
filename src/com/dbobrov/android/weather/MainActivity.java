@@ -8,12 +8,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -28,7 +28,7 @@ import com.dbobrov.android.weather.views.WeatherPagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends FragmentActivity implements ServiceConnection, DialogInterface.OnClickListener {
+public class MainActivity extends FragmentActivity implements DialogInterface.OnClickListener {
 
     private ViewPager viewPager;
 
@@ -36,10 +36,11 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
     private List<Fragment> fragments;
 
     private BroadcastReceiver receiver;
-    private IService service;
+//    private IService service;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        long start = System.nanoTime();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
@@ -63,23 +64,30 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
         registerReceiver(receiver, filter);
         Intent intent = new Intent(this, WeatherService.class);
         startService(intent);
-        bindService(intent, this, BIND_NOT_FOREGROUND);
-
+//        bindService(intent, this, BIND_NOT_FOREGROUND);
+        long end = System.nanoTime();
+        Log.i("com.dbobrov.android.weather", "Service bind: " + (end - start) / 1000000);
+        start = end;
 //        dataLayer = new DataLayer(this).open();
         viewPager = (ViewPager) findViewById(R.id.pager);
         fragments = new ArrayList<Fragment>();
 
 //        Cursor cursor = dataLayer.getCities();
         Cursor cursor = managedQuery(WeatherProvider.CONTENT_CITY_URI, null, null, null, null);
+        end = System.nanoTime();
+        Log.i("com.dbobrov.android.weather", "Query completed: " + (end - start) / 1000000);
+        start = end;
         while (cursor.moveToNext()) {
             fragments.add(new WeatherFragment(cursor.getLong(0), cursor.getString(1), cursor.getString(2), this));
         }
         cursor.close();
 //        dataLayer.close();
         viewPager.setAdapter(new WeatherPagerAdapter(getSupportFragmentManager(), fragments));
+        end = System.nanoTime();
+        Log.i("com.dbobrov.android.weather", "Fragments displayed: " + (end - start) / 1000000);
     }
 
-    @Override
+   /* @Override
     public void onServiceConnected(ComponentName componentName, IBinder binder) {
         service = IService.Stub.asInterface(binder);
     }
@@ -87,7 +95,7 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
     @Override
     public void onServiceDisconnected(ComponentName componentName) {
         service = null;
-    }
+    }*/
 
     private static final int M_ADD_CITY = 0, M_DEL_CITY = 1, M_CHANGE_INTERVAL = 2;
 
@@ -176,9 +184,9 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
                                 editor.commit();
                                 Intent svc = new Intent(MainActivity.this, WeatherService.class);
                                 stopService(svc);
-                                unbindService(MainActivity.this);
+//                                unbindService(MainActivity.this);
                                 startService(svc);
-                                bindService(svc, MainActivity.this, BIND_NOT_FOREGROUND);
+//                                bindService(svc, MainActivity.this, BIND_NOT_FOREGROUND);
                                 break;
                             case DialogInterface.BUTTON_NEGATIVE:
                                 break;
@@ -252,6 +260,6 @@ public class MainActivity extends FragmentActivity implements ServiceConnection,
         if (receiver != null) {
             unregisterReceiver(receiver);
         }
-        unbindService(this);
+//        unbindService(this);
     }
 }

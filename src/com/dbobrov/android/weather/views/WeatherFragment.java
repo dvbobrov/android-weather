@@ -47,6 +47,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
 
         @Override
         protected void onPostExecute(Boolean result) {
+            refresh.setEnabled(true);
             if (result) {
                 updateView();
             }
@@ -105,6 +106,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnRefresh:
+                refresh.setEnabled(false);
                 cityView.findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
                 new UpdateCurrentWeather().execute(null);
                 break;
