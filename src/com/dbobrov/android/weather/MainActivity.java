@@ -14,10 +14,14 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.*;
+import android.view.View;
+import android.view.ViewManager;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 import com.dbobrov.android.weather.database.WeatherProvider;
 import com.dbobrov.android.weather.models.City;
 import com.dbobrov.android.weather.network.ApiClient;
@@ -27,9 +31,10 @@ import com.dbobrov.android.weather.views.WeatherPagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends FragmentActivity implements DialogInterface.OnClickListener {
+public class MainActivity extends FragmentActivity implements DialogInterface.OnClickListener, ViewPager.OnPageChangeListener {
 
     private ViewPager viewPager;
+    private LinearLayout left, right;
 
     //    private DataLayer dataLayer;
     private List<Fragment> fragments;
@@ -42,7 +47,6 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
         long start = System.nanoTime();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
         IntentFilter filter = new IntentFilter();
         filter.addAction(WeatherService.TAG);
         receiver = new BroadcastReceiver() {
@@ -76,12 +80,23 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
         end = System.nanoTime();
         Log.i("com.dbobrov.android.weather", "Query completed: " + (end - start) / 1000000);
         start = end;
+        left = (LinearLayout) findViewById(R.id.indicatorLeft);
+        right = (LinearLayout) findViewById(R.id.indicatorRight);
+        boolean addCircles = false;
         while (cursor.moveToNext()) {
             fragments.add(new WeatherFragment(cursor.getLong(0), cursor.getString(1), this));
+            if (addCircles) {
+                ImageView v = new ImageView(this);
+                v.setPadding(2, 2, 2, 2);
+                v.setImageResource(R.drawable.circle);
+                right.addView(v);
+            }
+            addCircles = true;
         }
         cursor.close();
 //        dataLayer.close();
         viewPager.setAdapter(new WeatherPagerAdapter(getSupportFragmentManager(), fragments));
+        viewPager.setOnPageChangeListener(this);
         end = System.nanoTime();
         Log.i("com.dbobrov.android.weather", "Fragments displayed: " + (end - start) / 1000000);
     }
@@ -137,14 +152,17 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         switch (id) {
             case D_ADD_CITY:
-                dialogText = new EditText(this);
+                if (dialogText == null) {
+                    dialogText = new EditText(this);
+                    dialogText.setHint(R.string.enter_city);
+                }
                 LinearLayout.LayoutParams params =
                         new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
                                 LinearLayout.LayoutParams.FILL_PARENT);
                 dialogText.setLayoutParams(params);
                 builder.setView(dialogText);
-                builder.setPositiveButton("Ok", this)
-                        .setNegativeButton("Cancel", this);
+                builder.setPositiveButton(android.R.string.ok, this)
+                        .setNegativeButton(android.R.string.cancel, this);
                 return builder.create();
             case D_CHANGE_INTERVAL:
                 builder.setItems(R.array.intervals, new DialogInterface.OnClickListener() {
@@ -177,6 +195,32 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
                 break;
         }
         dialogText = null;
+    }
+
+    @Override
+    public void onPageScrolled(int i, float v, int i2) {
+    }
+
+    @Override
+    public void onPageSelected(int pos) {
+        int leftCount = left.getChildCount();
+        int rightCount = right.getChildCount();
+        if (leftCount == pos - 1) {
+            // Scrolled right
+            View v = right.getChildAt(rightCount - 1);
+            right.removeViewAt(rightCount - 1);
+            left.addView(v);
+        } else if (leftCount == pos + 1) {
+            // Scrolled right
+            View v = left.getChildAt(leftCount - 1);
+            left.removeViewAt(leftCount - 1);
+            right.addView(v);
+        }
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int i) {
+
     }
 
     private class CitySearcher extends AsyncTask<String, Void, String[]> {
@@ -248,6 +292,10 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
             if (result) {
                 PagerAdapter adapter = viewPager.getAdapter();
                 adapter.notifyDataSetChanged();
+                ImageView v = new ImageView(MainActivity.this);
+                v.setImageResource(R.drawable.circle);
+                v.setPadding(2, 2, 2, 2);
+                right.addView(v);
                 Toast.makeText(MainActivity.this, R.string.city_added, Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(MainActivity.this, R.string.error, Toast.LENGTH_SHORT).show();

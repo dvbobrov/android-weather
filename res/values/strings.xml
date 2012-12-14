@@ -40,5 +40,6 @@
     <string name="city_added">City added</string>
     <string name="error">Error</string>
     <string name="deleted">City deleted</string>
+    <string name="enter_city">Enter city here</string>
 
 </resources>
