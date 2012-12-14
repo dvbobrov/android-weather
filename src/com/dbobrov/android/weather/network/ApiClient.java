@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.location.*;
 import android.util.Log;
+import android.util.Pair;
 import com.dbobrov.android.weather.R;
 import com.dbobrov.android.weather.database.DataLayer;
 import com.dbobrov.android.weather.models.City;
@@ -22,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -35,8 +37,8 @@ public class ApiClient {
 
     private static final String CITY_SEARCH_URL = "http://www.worldweatheronline.com/feed/search.ashx?key=" +
             API_KEY +
-            "&num_of_results=1" +
-            "&format=json&popular=yes&query=";
+            "&num_of_results=10" +
+            "&format=json&query=";
 
     private final DataLayer dataLayer;
     private final Context context;
@@ -181,7 +183,9 @@ public class ApiClient {
             dataLayer.close();
             return new City(id, cityData[0], cityData[1]);
         } catch (IOException e) {
+            Log.e(TAG, "No response from api");
         } catch (JSONException e) {
+            Log.e(TAG, "JSON parsing failed");
         }
 
         return null;
@@ -232,6 +236,33 @@ public class ApiClient {
             return R.string.unknown;
         } catch (IllegalAccessException e) {
             return R.string.unknown;
+        }
+    }
+
+    public List<Pair<String, String>> searchCity(String query) {
+        String requestUrl = CITY_SEARCH_URL + URLEncoder.encode(query);
+        String response;
+        try {
+             response = getHttpResponse(requestUrl);
+        } catch (IOException e) {
+            Log.e(TAG, "No response from api");
+            return null;
+        }
+        try {
+            JSONArray result = new JSONObject(response).getJSONObject("search_api").getJSONArray("result");
+            if (result.length() == 0) return null;
+            List<Pair<String, String>> variants = new ArrayList<Pair<String, String>>();
+            for (int i = 0; i < result.length(); ++i) {
+                JSONObject o = result.getJSONObject(i);
+                String city = o.getJSONArray("areaName").getJSONObject(0).getString("value");
+                String country = o.getJSONArray("country").getJSONObject(0).getString("value");
+                variants.add(new Pair<String, String>(city, country));
+            }
+            return variants;
+        } catch (JSONException e) {
+            Log.e(TAG, "JSON parsing failed");
+            Log.e(TAG, e.getMessage());
+            return null;
         }
     }
 }

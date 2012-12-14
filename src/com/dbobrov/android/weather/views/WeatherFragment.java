@@ -9,10 +9,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.*;
 import com.dbobrov.android.weather.R;
 import com.dbobrov.android.weather.database.DataLayer;
 import com.dbobrov.android.weather.models.Forecast;
@@ -25,15 +22,9 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created with IntelliJ IDEA.
- * User: blackhawk
- * Date: 04.12.12
- * Time: 14:11
- */
 public class WeatherFragment extends Fragment implements View.OnClickListener {
     private final long cityId;
-    private final String city, country;
+    private final String city;
     private View cityView;
     private final Context context;
 
@@ -60,15 +51,19 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
 
 
     // Data containers
-    private TextView temperature, pressure, humidity, windDir, windSpeed, observationTime, cityName;
+    private TextView temperature;
+    private TextView pressure;
+    private TextView humidity;
+    private TextView windDir;
+    private TextView windSpeed;
+    private TextView observationTime;
     private ImageView weatherIcon;
     private ListView forecast;
-    private Button refresh;
+    private ImageButton refresh;
 
-    public WeatherFragment(long cityId, String city, String country, Context context) {
+    public WeatherFragment(long cityId, String city, Context context) {
         this.cityId = cityId;
         this.city = city;
-        this.country = country;
         this.context = context;
     }
 
@@ -97,10 +92,10 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
         windSpeed = getTextView(R.id.windSpeed);
         observationTime = getTextView(R.id.observationTime);
         forecast = (ListView) cityView.findViewById(R.id.forecast);
-        refresh = (Button) cityView.findViewById(R.id.btnRefresh);
+        refresh = (ImageButton) cityView.findViewById(R.id.refresh);
         refresh.setOnClickListener(this);
         weatherIcon = (ImageView) cityView.findViewById(R.id.weatherIcon);
-        cityName = getTextView(R.id.cityName);
+        TextView cityName = getTextView(R.id.cityName);
         cityName.setText(this.city);
         updateView();
         return cityView;
@@ -109,10 +104,10 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.btnRefresh:
+            case R.id.refresh:
                 refresh.setEnabled(false);
                 cityView.findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-                new UpdateCurrentWeather().execute(null);
+                new UpdateCurrentWeather().execute((Void) null);
                 break;
         }
     }
@@ -167,11 +162,5 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
             ampm = ampm.equals("AM") ? "PM" : "AM";
         }
         return String.format("%d:%d %s", hours, minutes, ampm);
-    }
-
-    public void setRefreshDisabled() {
-        if (cityView != null) {
-            refresh.setEnabled(false);
-        }
     }
 }

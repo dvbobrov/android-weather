@@ -16,7 +16,6 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.*;
 import com.dbobrov.android.weather.database.WeatherProvider;
 import com.dbobrov.android.weather.models.City;
@@ -77,7 +76,7 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
         Log.i("com.dbobrov.android.weather", "Query completed: " + (end - start) / 1000000);
         start = end;
         while (cursor.moveToNext()) {
-            fragments.add(new WeatherFragment(cursor.getLong(0), cursor.getString(1), cursor.getString(2), this));
+            fragments.add(new WeatherFragment(cursor.getLong(0), cursor.getString(1), this));
         }
         cursor.close();
 //        dataLayer.close();
@@ -101,9 +100,9 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, M_ADD_CITY, 0, R.string.add_city);
-        menu.add(0, M_DEL_CITY, 0, R.string.del_city);
-        menu.add(0, M_CHANGE_INTERVAL, 0, R.string.change_interval);
+        menu.add(0, M_ADD_CITY, 0, R.string.add_city).setIcon(android.R.drawable.ic_menu_add);
+        menu.add(0, M_DEL_CITY, 0, R.string.del_city).setIcon(android.R.drawable.ic_menu_delete);
+        menu.add(0, M_CHANGE_INTERVAL, 0, R.string.change_interval).setIcon(android.R.drawable.ic_menu_edit);
         return false;
     }
 
@@ -195,7 +194,7 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
             ApiClient client = new ApiClient(MainActivity.this);
             City city = client.tryAddCity(query);
             if (city != null) {
-                Fragment fragment = new WeatherFragment(city.id, city.name, city.country, MainActivity.this);
+                Fragment fragment = new WeatherFragment(city.id, city.name, MainActivity.this);
                 fragments.add(fragment);
                 return true;
             }

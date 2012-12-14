@@ -38,18 +38,16 @@
                 android:textAppearance="@android:style/TextAppearance.Large"
                 android:gravity="center"/>
         <ImageView
-                android:layout_width="64px"
-                android:layout_height="64px"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
                 android:id="@+id/weatherIcon"
                 android:layout_gravity="center_vertical"
                 android:src="@drawable/unknown" android:layout_marginLeft="5dp"/>
-        <Button
+        <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/refresh"
-                android:id="@+id/btnRefresh" android:layout_toRightOf="@+id/observationTime"
-                android:layout_below="@+id/textView4" android:layout_gravity="center_vertical"
-                android:layout_marginLeft="5dp"/>
+                android:id="@+id/refresh" android:layout_gravity="center_vertical" android:src="@drawable/refresh"
+                android:layout_marginLeft="10dp"/>
     </LinearLayout>
 
     <TextView

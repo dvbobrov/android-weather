@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.Pair;
-import android.view.View;
 import android.widget.ImageView;
 
 import java.io.IOException;
@@ -60,7 +59,6 @@ public class IconGetter extends AsyncTask<Void, Pair<ImageView, Bitmap>, Void> {
             } catch (MalformedURLException e) {
                 Log.e(TAG, "Invalid URL");
             } catch (IOException e) {
-//                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 Log.e(TAG, "Cannot download image");
             }
         }
