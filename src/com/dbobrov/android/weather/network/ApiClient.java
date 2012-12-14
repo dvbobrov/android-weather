@@ -239,7 +239,7 @@ public class ApiClient {
         }
     }
 
-    public List<Pair<String, String>> searchCity(String query) {
+    public List<String> searchCity(String query) {
         String requestUrl = CITY_SEARCH_URL + URLEncoder.encode(query);
         String response;
         try {
@@ -251,12 +251,12 @@ public class ApiClient {
         try {
             JSONArray result = new JSONObject(response).getJSONObject("search_api").getJSONArray("result");
             if (result.length() == 0) return null;
-            List<Pair<String, String>> variants = new ArrayList<Pair<String, String>>();
+            List<String> variants = new ArrayList<String>();
             for (int i = 0; i < result.length(); ++i) {
                 JSONObject o = result.getJSONObject(i);
                 String city = o.getJSONArray("areaName").getJSONObject(0).getString("value");
                 String country = o.getJSONArray("country").getJSONObject(0).getString("value");
-                variants.add(new Pair<String, String>(city, country));
+                variants.add(city + ", " + country);
             }
             return variants;
         } catch (JSONException e) {

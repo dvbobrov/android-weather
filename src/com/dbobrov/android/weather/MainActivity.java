@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.*;
@@ -170,7 +171,7 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
         switch (which) {
             case DialogInterface.BUTTON_POSITIVE:
                 String query = dialogText.getText().toString();
-                new AddCity().execute(query);
+                new CitySearcher().execute(query);
                 break;
             case DialogInterface.BUTTON_NEGATIVE:
                 break;
@@ -178,6 +179,44 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
         dialogText = null;
     }
 
+    private class CitySearcher extends AsyncTask<String, Void, String[]> {
+
+        ProgressDialog dialog;
+
+        @Override
+        protected void onPreExecute() {
+            dialog = ProgressDialog.show(MainActivity.this, "Loading", null);
+            dialog.show();
+        }
+
+        @Override
+        protected String[] doInBackground(String... param) {
+            ApiClient client = new ApiClient(MainActivity.this);
+            List<String> result = client.searchCity(param[0]);
+            return result.toArray(new String[result.size()]);
+        }
+
+        @Override
+        protected void onPostExecute(final String[] result) {
+            if (dialog != null && dialog.isShowing()) {
+                dialog.dismiss();
+            }
+            if (result == null) {
+                Toast.makeText(MainActivity.this, "Nothing found", Toast.LENGTH_SHORT).show();
+            } else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setItems(result, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        new AddCity().execute(result[which]);
+                    }
+                });
+                builder.create().show();
+            }
+
+
+        }
+    }
 
     private class AddCity extends AsyncTask<String, Void, Boolean> {
         ProgressDialog dialog;
