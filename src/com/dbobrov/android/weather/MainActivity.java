@@ -16,9 +16,8 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.*;
 import com.dbobrov.android.weather.database.WeatherProvider;
 import com.dbobrov.android.weather.models.City;
 import com.dbobrov.android.weather.network.ApiClient;
@@ -118,10 +117,7 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
                 WeatherFragment fragment = (WeatherFragment) fragments.get(viewPager.getCurrentItem());
                 long id = fragment.getCityId();
                 getContentResolver().delete(Uri.withAppendedPath(WeatherProvider.CONTENT_CITY_URI, String.valueOf(id)), null, null);
-               /* dataLayer.open().removeCity(id);
-                dataLayer.close();*/
                 Toast.makeText(this, R.string.deleted, Toast.LENGTH_SHORT).show();
-//                fragment.setRefreshDisabled();
                 fragments.remove(fragment);
                 viewPager.getAdapter().notifyDataSetChanged();
                 break;
@@ -135,12 +131,12 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
     private static final int D_ADD_CITY = 0, D_CHANGE_INTERVAL = 1;
     private EditText dialogText;
 
+
     @Override
     public Dialog onCreateDialog(int id) {
-
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         switch (id) {
             case D_ADD_CITY:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 dialogText = new EditText(this);
                 LinearLayout.LayoutParams params =
                         new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
@@ -151,52 +147,21 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
                         .setNegativeButton("Cancel", this);
                 return builder.create();
             case D_CHANGE_INTERVAL:
-                AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
-                dialogText = new EditText(this);
-
-                LinearLayout.LayoutParams params1 =
-                        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                                LinearLayout.LayoutParams.FILL_PARENT);
-                dialogText.setLayoutParams(params1);
-                dialogText.setHint(R.string.interval_hint);
-                builder1.setView(dialogText);
-                DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+                builder.setItems(R.array.intervals, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        switch (i) {
-                            case DialogInterface.BUTTON_POSITIVE:
-                                int intervalMin = -1;
-                                try {
-                                    intervalMin = Integer.parseInt(dialogText.getText().toString());
-                                } catch (NumberFormatException ignore) {
-                                }
-                                if (intervalMin < 0) {
-                                    Toast.makeText(MainActivity.this,
-                                            "Please, enter a positive number", Toast.LENGTH_SHORT).show();
-                                    break;
-                                }
-                                long newInterval = intervalMin * 1000L * 60L;
-
-                                SharedPreferences.Editor editor = PreferenceManager
-                                        .getDefaultSharedPreferences(MainActivity.this).edit();
-
-                                editor.putLong("updateInterval", newInterval);
-                                editor.commit();
-                                Intent svc = new Intent(MainActivity.this, WeatherService.class);
-                                stopService(svc);
-//                                unbindService(MainActivity.this);
-                                startService(svc);
-//                                bindService(svc, MainActivity.this, BIND_NOT_FOREGROUND);
-                                break;
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                break;
-                        }
-                        dialogText = null;
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        long interval = getResources().getIntArray(R.array.interval_values)[which];
+                        interval *= 60000L;
+                        SharedPreferences.Editor editor = PreferenceManager
+                                .getDefaultSharedPreferences(MainActivity.this).edit();
+                        editor.putLong("updateInterval", interval);
+                        editor.commit();
+                        Intent svc = new Intent(MainActivity.this, WeatherService.class);
+                        stopService(svc);
+                        startService(svc);
                     }
-                };
-                builder1.setPositiveButton("Ok", listener)
-                        .setNegativeButton("Cancel", listener);
-                return builder1.create();
+                });
+                return builder.create();
         }
         return super.onCreateDialog(id);
     }
@@ -213,6 +178,7 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
         }
         dialogText = null;
     }
+
 
     private class AddCity extends AsyncTask<String, Void, Boolean> {
         ProgressDialog dialog;
@@ -238,14 +204,12 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
 
         @Override
         protected void onPostExecute(Boolean result) {
-
             if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
             }
             if (result) {
                 PagerAdapter adapter = viewPager.getAdapter();
                 adapter.notifyDataSetChanged();
-//                viewPager.setAdapter(adapter);
                 Toast.makeText(MainActivity.this, R.string.city_added, Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(MainActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
@@ -260,6 +224,5 @@ public class MainActivity extends FragmentActivity implements DialogInterface.On
         if (receiver != null) {
             unregisterReceiver(receiver);
         }
-//        unbindService(this);
     }
 }
