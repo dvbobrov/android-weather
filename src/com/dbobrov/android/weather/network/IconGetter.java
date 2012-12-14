@@ -7,8 +7,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.widget.ImageView;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -46,20 +45,32 @@ public class IconGetter extends AsyncTask<Void, Pair<ImageView, Bitmap>, Void> {
     protected Void doInBackground(Void... params) {
         while (!queue.isEmpty()) {
             Pair<String, ImageView> item = queue.poll();
-            if (!item.second.isShown()) continue;
-            try {
-                URL url = new URL(ROOT_URL + item.first);
-                URLConnection connection = url.openConnection();
-                connection.setUseCaches(true);
-                InputStream response = connection.getInputStream();
-                Bitmap bitmap = BitmapFactory.decodeStream(response);
-
-                publishProgress(new Pair<ImageView, Bitmap>(item.second, bitmap));
-
-            } catch (MalformedURLException e) {
-                Log.e(TAG, "Invalid URL");
-            } catch (IOException e) {
-                Log.e(TAG, "Cannot download image");
+//            if (!item.second.isShown()) continue;
+            File cacheDir = item.second.getContext().getCacheDir();
+            File cachedImage = new File(cacheDir, item.first);
+            if (cachedImage.exists()) {
+                try {
+                    Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(cachedImage));
+                    publishProgress(new Pair<ImageView, Bitmap>(item.second, bitmap));
+                } catch (FileNotFoundException e) {
+                    Log.e(TAG, "Cannot read image from cache");
+                }
+            } else {
+                try {
+                    URL url = new URL(ROOT_URL + item.first);
+                    URLConnection connection = url.openConnection();
+//                    connection.setUseCaches(true);
+                    InputStream response = connection.getInputStream();
+                    Bitmap bitmap = BitmapFactory.decodeStream(response);
+                    publishProgress(new Pair<ImageView, Bitmap>(item.second, bitmap));
+                    cachedImage.createNewFile();
+                    FileOutputStream os = new FileOutputStream(cachedImage);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 90, os);
+                } catch (MalformedURLException e) {
+                    Log.e(TAG, "Invalid URL");
+                } catch (IOException e) {
+                    Log.e(TAG, "Cannot download image");
+                }
             }
         }
         return null;

@@ -27,8 +27,8 @@
     </LinearLayout>
 
     <ImageView
-            android:layout_width="64px"
-            android:layout_height="64px"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:id="@+id/icon"
             android:src="@drawable/unknown"
             android:layout_toRightOf="@+id/dateContainer" android:layout_centerVertical="true"

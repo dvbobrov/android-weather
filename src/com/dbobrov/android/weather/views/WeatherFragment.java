@@ -161,6 +161,6 @@ public class WeatherFragment extends Fragment implements View.OnClickListener {
             hours %= 12;
             ampm = ampm.equals("AM") ? "PM" : "AM";
         }
-        return String.format("%d:%d %s", hours, minutes, ampm);
+        return String.format("%d:%02d %s", hours, minutes, ampm);
     }
 }
