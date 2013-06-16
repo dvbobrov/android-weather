@@ -1,4 +1,4 @@
 android-weather
 ===============
 
-Android weather application
+(Homework) Android weather application
